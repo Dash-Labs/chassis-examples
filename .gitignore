@@ -8,3 +8,5 @@ target/
 gen/
 out/
 .ply/config/local.*
+node_modules/
+app-config.json
