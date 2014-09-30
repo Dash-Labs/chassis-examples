@@ -1,4 +1,5 @@
 var express = require('express');
+var session = require('express-session');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -8,6 +9,11 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var auth = require('./routes/auth');
 var trips = require('./routes/trips');
+var nconf = require('nconf');
+
+
+nconf.env().argv();
+nconf.file('./app-config.json');
 
 var app = express();
 
@@ -17,6 +23,12 @@ app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
+var sessionOpts = {};
+sessionOpts.name = nconf.get('COOKIE_NAME');
+sessionOpts.secret = nconf.get('SESSION_SECRET');
+sessionOpts.resave = "true";
+sessionOpts.saveUninitialized = "true";
+app.use(session(sessionOpts));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
