@@ -6,6 +6,7 @@ target/
 .DS_Store/
 .DS_Store
 gen/
+.idea/
 out/
 .ply/config/local.*
 node_modules/
