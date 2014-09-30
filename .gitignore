@@ -8,6 +8,7 @@ target/
 gen/
 .idea/
 out/
+**/*.gz
 .ply/config/local.*
 node_modules/
 app-config.json

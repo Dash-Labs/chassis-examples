@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 var debug = require('debug')('chassis-examples');
 var app = require('../app');
 
