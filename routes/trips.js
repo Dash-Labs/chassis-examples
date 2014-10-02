@@ -54,7 +54,7 @@ function fetchAllTrips(req, vehicles, cb) {
   async.until(function(){ return done }, function(cb) {
     request.get({
       uri: uri,
-      headers: {Authorization: 'Bearer' + req.session.access_token}
+      headers: {Authorization: 'Bearer ' + req.session.access_token}
     }, function(error, response, body) {
         var message = JSON.parse(body);
         if (message && message.result && message.result.length > 0) {

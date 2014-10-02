@@ -24,6 +24,7 @@ exports.authorize = function(req, res) {
 
   function saveAuthToken(error, response, body) {
     var message = JSON.parse(body || '{}');
+    console.log("token: "+ message.access_token);
     req.session.access_token = message.access_token;
     res.redirect('/apps');
   }
