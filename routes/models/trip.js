@@ -25,6 +25,9 @@ function Trip(dateStart, dateEnd, vehicleName, startAddress, startMapImageUrl, s
     this.engineLightAlerts = getNumOfAlerts('EngineLight', alerts);
 }
 
+/**
+* Rounds the given {@code value} to the number of decimals as indicated by the {@code decimals} property.
+*/
 function round(value, decimals) {
     if (!value){
         return 0;
@@ -32,17 +35,24 @@ function round(value, decimals) {
     return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
 }
 
+/**
+* Formats the given time in a "h:mm:ss" format
+*/
 function formatTime(timeInMinutesVal) {
     if (!timeInMinutesVal) {
-        return "00::00::00";
+        return "00:00:00";
     }
     var timeInMinutes = parseFloat(timeInMinutesVal);
     var hours = Math.floor(timeInMinutes / 60);
     var minutes = Math.floor(timeInMinutes % 60);
     var seconds = Math.floor((timeInMinutes * 60) - (hours * 3600) - (minutes * 60));
-    return hours + "::" + minutes + "::" + seconds;
+    return hours + ":" + minutes + ":" + seconds;
 }
 
+/**
+* Constructs a trip summary header. It uses the user's {@code preferredUnits} to indicate the measurement units in the
+* headers.
+*/
 function tripSummaryHeader(preferredUnits) {
     var header = {};
     header.startDate = "Start Date";
@@ -59,7 +69,7 @@ function tripSummaryHeader(preferredUnits) {
     header.avgFuelEfficiency = "Avg Fuel Efficiency (" + preferredUnits.fuelEfficiency + ")";
     header.avgSpeed = "Avg Speed (" +preferredUnits.distance +"/hour)";
     header.distanceDriven = preferredUnits.distance + " Driven";
-    header.timeDriven = "Time Driven (hh::mm::ss)";
+    header.timeDriven = "Time Driven (hh:mm:ss)";
     header.fuelConsumed = "Fuel Consumed ("+ preferredUnits.volume + ")";
     header.hardBrakeAlerts = "Hard Brake Alerts";
     header.hardAccelerationAlerts = "Hard Acceleration Alerts";
@@ -68,6 +78,9 @@ function tripSummaryHeader(preferredUnits) {
     return header;
 }
 
+/**
+* Calculates the number of alerts belonging to the given {@code alertType}.
+*/
 function getNumOfAlerts(alertType, alerts) {
     if (alerts) {
         return _.where(alerts, {'alertType' : alertType}).length;

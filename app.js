@@ -2,7 +2,7 @@ var express = require('express');
 var session = require('express-session');
 var path = require('path');
 var favicon = require('serve-favicon');
-var logger = require('morgan');
+var logger = require('./utils/logger');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
@@ -10,7 +10,6 @@ var routes = require('./routes/index');
 var auth = require('./routes/auth');
 var trips = require('./routes/trips');
 var nconf = require('nconf');
-
 
 nconf.env().argv();
 nconf.file('./app-config.json');
@@ -28,8 +27,9 @@ sessionOpts.name = nconf.get('COOKIE_NAME');
 sessionOpts.secret = nconf.get('SESSION_SECRET');
 sessionOpts.resave = "true";
 sessionOpts.saveUninitialized = "true";
+logger.debug("Overriding 'Express' logger");
+app.use(require('morgan')("combined",{ "stream": logger.stream }));
 app.use(session(sessionOpts));
-app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -48,20 +48,6 @@ app.use(function(req, res, next) {
 });
 
 // error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
-    });
-}
-
-// production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
     res.status(err.status || 500);
