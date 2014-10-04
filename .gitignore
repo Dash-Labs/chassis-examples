@@ -6,5 +6,10 @@ target/
 .DS_Store/
 .DS_Store
 gen/
+.idea/
 out/
+logs/
+**/*.gz
 .ply/config/local.*
+node_modules/
+app-config.json
