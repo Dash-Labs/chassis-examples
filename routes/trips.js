@@ -33,7 +33,7 @@ exports.trips = function(req, res) {
                if (error) {
                    res.status(500).json({error: "Error encountered while fetching user's trips"});
                }
-               res.setHeader('Content-disposition', 'attachment; filename=trips.csv');
+               res.setHeader('Content-disposition', 'attachment; filename=dash-trips.csv');
                trips.unshift(Trip.tripSummaryHeader(profile.preferredUnits));
                res.csv(trips);
             });
