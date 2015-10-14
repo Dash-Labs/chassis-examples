@@ -38,15 +38,15 @@ def not_found(error):
 def not_found(error):
     return render_template('404.html', title='404')
 
-@app.route('/')
-@app.route('/index')
+@app.route('/heatmap/')
+@app.route('/heatmap/index')
 def index():
     if TOKEN in session:
         return render_template('navigation.html', title='Home')
     else:
         return render_template('login.html', title='login')
 
-@app.route('/login')
+@app.route('/heatmap/login')
 def login():
     session[STATE] = str(uuid4())
     params = {"client_id": CLIENT_ID,
@@ -57,7 +57,7 @@ def login():
     login_url = "https://dash.by/api/auth/authorize?" + urllib.urlencode(params)
     return redirect(login_url, code=302)
 
-@app.route('/api/authorize', methods=['GET'])
+@app.route('/heatmap/api/authorize', methods=['GET'])
 def authorize():
     code = request.args.get('code', '')
     state = request.args.get('state', '')
@@ -82,28 +82,28 @@ def get_token(code):
     token_json = response.json()
     return token_json["access_token"]
 
-@app.route('/heatmap')
+@app.route('/heatmap/heatmap')
 def heatmap():
     if TOKEN in session:
         return render_template('heatmap.html', title='heatmap')
     else:
         return redirect(url_for('index'))
 
-@app.route('/speed-fuel')
+@app.route('/heatmap/speed-fuel')
 def speed_fuel():
     if TOKEN in session:
         return render_template('speed-fuel.html', title='speed fuel info')
     else:
         return redirect(url_for('index'))
 
-@app.route('/api/heatmap')
+@app.route('/heatmap/api/heatmap')
 def get_current_month_heatmap():
     if TOKEN in session:
         return get_heatmap_csv(None, None)
     else:
         return redirect(url_for('index'))
 
-@app.route('/api/heatmap/<date_start>/<date_end>', methods=['GET'])
+@app.route('/heatmap/api/heatmap/<date_start>/<date_end>', methods=['GET'])
 def get_previous_month_heatmap(date_start, date_end):
     if TOKEN in session:
         return get_heatmap_csv(date_start, date_end)
@@ -138,14 +138,14 @@ def write_coordinate_data_into_csv(writer, trips, token):
         for route in routes:
             writer.writerow((route[LATITUDE], route[LONGITUDE]))
 
-@app.route('/api/speed-fuel')
+@app.route('/heatmap/api/speed-fuel')
 def get_current_month_speed_fuel_info():
     if TOKEN in session:
         return get_speed_fuel_csv(None, None)
     else:
         return redirect(url_for('index'))
 
-@app.route('/api/speed-fuel/<date_start>/<date_end>', methods=['GET'])
+@app.route('/heatmap/api/speed-fuel/<date_start>/<date_end>', methods=['GET'])
 def get_previous_month_speed_fuel_info(date_start, date_end):
     if TOKEN in session:
         return get_speed_fuel_csv(date_start, date_end)
