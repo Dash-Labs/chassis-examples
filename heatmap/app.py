@@ -130,7 +130,7 @@ def write_coordinate_data_into_csv(writer, trips, token):
     for trip in trips['result']:
         routes = get_json_data_from_dash_api(ROUTE_API + trip['id'], token)
         for route in routes:
-            writer.writerow((route[LATITUDE], route[LATITUDE]))
+            writer.writerow((route[LATITUDE], route[LONGITUDE]))
 
 @app.route('/api/speed-fuel')
 def get_current_month_speed_fuel_info():
