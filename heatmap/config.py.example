@@ -1,6 +1,7 @@
 CLIENT_ID = "OAUTH_CLIENT_ID"
 CLIENT_SECRET = "OAUTH_SECRET"
 REDIRECT_URI = "https://www.YOUR-WEBSITE.com/authorize"
+API_HEATMAP_URL = "http://www.YOUR-WEBSITE.com/api/heatmap"
 STATE = "YOUR_STATE"
 SCOPE = "user trips"
 SESSION_SECRET = "PASSWORD_FOR_COOKIE"
@@ -10,5 +11,3 @@ NEXT_URL = "nextUrl"
 TRIP_API = "https://dash.by/api/chassis/v1/trips"
 ROUTE_API = "https://dash.by/api/chassis/v1/routes/"
 DASH_AUTHORIZE = "https://dash.by/api/auth/token"
-
-
