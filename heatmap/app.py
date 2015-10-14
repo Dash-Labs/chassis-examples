@@ -1,6 +1,7 @@
 #!flask/bin/python
 from flask import Flask, abort, request, jsonify, redirect, url_for, render_template, session, make_response
 from flask.ext.session import Session
+from uuid import uuid4
 import requests
 import urllib
 import json
@@ -17,16 +18,15 @@ CLIENT_ID = app.config["CLIENT_ID"]
 CLIENT_SECRET = app.config["CLIENT_SECRET"]
 REDIRECT_URI = app.config["REDIRECT_URI"]
 SCOPE = app.config["SCOPE"]
-STATE = app.config["STATE"]
-TOKEN = app.config["TOKEN"]
-NEXT_URL = app.config["NEXT_URL"]
 
+STATE = "state"
+TOKEN = "token"
+NEXT_URL = "nextUrl"
 LATITUDE = 'latitude'
 LONGITUDE = 'longitude'
 DATE = 'date'
 SPEED = 'speed'
 FUEL_EFFICIENCY = 'fuelEfficiency'
-
 
 sess = Session()
 
@@ -48,9 +48,10 @@ def index():
 
 @app.route('/login')
 def login():
+    session[STATE] = str(uuid4())
     params = {"client_id": CLIENT_ID,
               "response_type": "code",
-              "state": STATE,
+              "state": session[STATE],
               "redirect_uri": REDIRECT_URI,
               "scope": SCOPE}
     login_url = "https://dash.by/api/auth/authorize?" + urllib.urlencode(params)
@@ -60,12 +61,17 @@ def login():
 def authorize():
     code = request.args.get('code', '')
     state = request.args.get('state', '')
-    if state != STATE or code is None:
-        return redirect(url_for('index'))
-    else:
+    if is_request_Valid(state, code):
         token = get_token(code)
         session[TOKEN] = token
         return redirect(url_for('index'))
+    else:
+        abort(400)
+
+def is_request_Valid(state, code):
+    if STATE not in session or state != session[STATE] or code is None:
+        return False
+    return True
 
 def get_token(code):
     post_data = {"grant_type": "authorization_code",
@@ -186,6 +192,4 @@ def get_trips_data(date_start, date_end, token):
         return get_json_data_from_dash_api(TRIP_API + "?startTime=" + date_start + "&endTime=" + date_end, token)
 
 if __name__ == '__main__':
-    app.config['SESSION_TYPE'] = 'memcached'
-    app.config['SECRET_KEY'] = 'super secret key'
     app.run(debug=True)
