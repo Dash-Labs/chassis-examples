@@ -4,6 +4,8 @@ REDIRECT_URI = "https://www.YOUR-WEBSITE.com/authorize"
 STATE = "YOUR_STATE"
 SCOPE = "user trips"
 SESSION_SECRET = "PASSWORD_FOR_COOKIE"
+TOKEN = "token"
+NEXT_URL = "nextUrl"
 
 TRIP_API = "https://dash.by/api/chassis/v1/trips"
 ROUTE_API = "https://dash.by/api/chassis/v1/routes/"

@@ -4,18 +4,30 @@ from flask.ext.session import Session
 import requests
 import urllib
 import json
-# csv
 import csv
 import StringIO
 
-TOKEN = "token"
-NEXT_URL = "nextUrl"
-
-app = Flask(__name__, instance_relative_config=True)
+app = Flask(__name__)
 app.config.from_object('config')
 
-app.config['SESSION_TYPE'] = 'memcached'
-app.config['SECRET_KEY'] = SESSION_SECRET
+TRIP_API = app.config["TRIP_API"]
+ROUTE_API = app.config["ROUTE_API"]
+DASH_AUTHORIZE = app.config["DASH_AUTHORIZE"]
+CLIENT_ID = app.config["CLIENT_ID"]
+CLIENT_SECRET = app.config["CLIENT_SECRET"]
+REDIRECT_URI = app.config["REDIRECT_URI"]
+SCOPE = app.config["SCOPE"]
+STATE = app.config["STATE"]
+TOKEN = app.config["TOKEN"]
+NEXT_URL = app.config["NEXT_URL"]
+
+LATITUDE = 'latitude'
+LONGITUDE = 'longitude'
+DATE = 'date'
+SPEED = 'speed'
+FUEL_EFFICIENCY = 'fuelEfficiency'
+
+
 sess = Session()
 
 @app.errorhandler(400)
@@ -24,7 +36,7 @@ def not_found(error):
 
 @app.errorhandler(404)
 def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), 404)
+    return render_template('404.html', title='404')
 
 @app.route('/')
 @app.route('/index')
@@ -71,6 +83,13 @@ def heatmap():
     else:
         return redirect(url_for('index'))
 
+@app.route('/speed-fuel')
+def speed_fuel():
+    if TOKEN in session:
+        return render_template('speed-fuel.html', title='speed fuel info')
+    else:
+        return redirect(url_for('index'))
+
 @app.route('/api/heatmap')
 def get_current_month_heatmap():
     if TOKEN in session:
@@ -87,11 +106,7 @@ def get_previous_month_heatmap(date_start, date_end):
 
 def get_heatmap_csv(date_start, date_end):
     token = session[TOKEN]
-    if date_start is None and date_end is None:
-        trips = get_json_data_from_dash_api(TRIP_API, token)
-    else:
-        trips = get_json_data_from_dash_api(TRIP_API + "?startTime=" + date_start + "&endTime=" + date_end, token)
-    trips_id = get_user_trip_id(trips)
+    trips = get_trips_data(date_start, date_end, token)
 
     if NEXT_URL in trips:
         nextUrl = trips[NEXT_URL]
@@ -100,32 +115,77 @@ def get_heatmap_csv(date_start, date_end):
         # create heatmap csv file
         sio = StringIO.StringIO()
         writer = csv.writer(sio)
+        # set column header
         writer.writerow(('lat', 'lon'))
+        # store the next URL at the first row (Handle it at front end)
         writer.writerow((next_date_start, next_date_end))
-        get_coordinate_info(writer, trips_id, token)
+        # write longitude and latitude data into csv
+        write_coordinate_data_into_csv(writer, trips, token)
         output = make_response(sio.getvalue())
         output.headers["Content-Disposition"] = "attachment; filename=heatmap.csv"
         output.headers["Content-type"] = "text/csv"
         return output
 
-def get_coordinate_info(writer, trips_id, token):
-    for trip_id in trips_id:
-        routes = get_json_data_from_dash_api(ROUTE_API + trip_id, token)
-        # get coordinate
+def write_coordinate_data_into_csv(writer, trips, token):
+    for trip in trips['result']:
+        routes = get_json_data_from_dash_api(ROUTE_API + trip['id'], token)
         for route in routes:
-            writer.writerow((route['latitude'], route['longitude']))
+            writer.writerow((route[LATITUDE], route[LATITUDE]))
+
+@app.route('/api/speed-fuel')
+def get_current_month_speed_fuel_info():
+    if TOKEN in session:
+        return get_speed_fuel_csv(None, None)
+    else:
+        return redirect(url_for('index'))
+
+@app.route('/api/speed-fuel/<date_start>/<date_end>', methods=['GET'])
+def get_previous_month_speed_fuel_info(date_start, date_end):
+    if TOKEN in session:
+        return get_speed_fuel_csv(date_start, date_end)
+    else:
+        return redirect(url_for('index'))
+
+def get_speed_fuel_csv(date_start, date_end):
+    token = session[TOKEN]
+    trips = get_trips_data(date_start, date_end, token)
+
+    if NEXT_URL in trips:
+        nextUrl = trips[NEXT_URL]
+        next_date_start = nextUrl[47:60]
+        next_date_end = nextUrl[-13:]
+        # create speed-fuel csv file
+        sio = StringIO.StringIO()
+        writer = csv.writer(sio)
+        # set column header
+        writer.writerow((DATE, SPEED, FUEL_EFFICIENCY))
+        # store the next URL at the first row (Handle it at front end)
+        writer.writerow((0, next_date_start, next_date_end))
+        # write date, speed and fuel efficiency data into csv
+        write_speed_fuel_data_into_csv(writer, trips, token)
+        output = make_response(sio.getvalue())
+        output.headers["Content-Disposition"] = "attachment; filename=speed_fuel.csv"
+        output.headers["Content-type"] = "text/csv"
+        return output
+
+def write_speed_fuel_data_into_csv(writer, trips, token):
+    for trip in trips['result']:
+        routes = get_json_data_from_dash_api(ROUTE_API + trip['id'], token)
+        for route in routes:
+            writer.writerow((route[DATE], route[SPEED], route[FUEL_EFFICIENCY]))
 
 def get_json_data_from_dash_api(api_url, token):
     headers = {'Authorization': 'Bearer ' + token}
     response = requests.get(api_url, headers=headers)
     return response.json()
-    # return json.loads(response.text)
 
-def get_user_trip_id(trips):
-    trips_id = []
-    for trip in trips['result']:
-        trips_id.append(trip['id'])
-    return trips_id
+def get_trips_data(date_start, date_end, token):
+    if date_start is None and date_end is None:
+        return get_json_data_from_dash_api(TRIP_API, token)
+    else:
+        return get_json_data_from_dash_api(TRIP_API + "?startTime=" + date_start + "&endTime=" + date_end, token)
 
 if __name__ == '__main__':
+    app.config['SESSION_TYPE'] = 'memcached'
+    app.config['SECRET_KEY'] = 'super secret key'
     app.run(debug=True)
