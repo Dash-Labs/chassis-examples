@@ -78,7 +78,7 @@ def get_token(code):
                  "code": code,
                  "client_id": CLIENT_ID,
                  "client_secret": CLIENT_SECRET}
-    response = requests.post(REDIRECT_URI, data=post_data)
+    response = requests.post(DASH_AUTHORIZE, data=post_data)
     token_json = response.json()
     return token_json["access_token"]
 
