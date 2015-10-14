@@ -1,0 +1,32 @@
+<head>
+  <title>Heatmap</title>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans|Raleway' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+  <style>
+    html, body, #map-canvas {
+      height: 100%;
+      margin: 0px;
+      padding: 0px;
+      font-family: 'Raleway', sans-serif;
+      z-index:1;
+    }
+  </style>
+</head>
+
+<body>
+  <div class=metanav>
+    {% if not session.token %}
+      <a href="{{ url_for('login') }}">log in</a>
+    {% endif %}
+  </div>  
+
+  <div id="api" style="display: none">{{config['API_HEATMAP_URL']}}</div>
+  <div id="map-canvas"> </div>
+
+  <script src="./static/papaparse.min.js"></script>
+  <script src="./static/jquery-2.1.1.min.js"></script>
+  <script src="./static/heatmap.js"></script>
+  <script src="https://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=visualization"></script>
+</body>
