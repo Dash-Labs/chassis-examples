@@ -1,5 +1,5 @@
 #!flask/bin/python
-from flask import Flask, abort, request, jsonify, redirect, url_for, render_template, session, make_response
+from flask import Flask, abort, request, jsonify, redirect, url_for, render_template, session, make_response, send_from_directory
 from flask.ext.session import Session
 from uuid import uuid4
 import requests
@@ -38,6 +38,10 @@ def not_found(error):
 def not_found(error):
     return render_template('404.html', title='404')
 
+@app.route('/heatmap/static/<path:path>')
+def send_js(path):
+    return send_from_directory('static', path)
+
 @app.route('/heatmap/')
 @app.route('/heatmap/index')
 def index():
@@ -45,6 +49,10 @@ def index():
         return render_template('navigation.html', title='Home')
     else:
         return render_template('login.html', title='login')
+
+@app.route('/heatmap/static/<path:path>')
+def send_js(path):
+    return send_from_directory('heatmap/static', path)
 
 @app.route('/heatmap/login')
 def login():
