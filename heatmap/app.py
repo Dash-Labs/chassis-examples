@@ -8,7 +8,7 @@ import json
 import csv
 import StringIO
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.config.from_object('config')
 
 TRIP_API = app.config["TRIP_API"]
@@ -49,10 +49,6 @@ def index():
         return render_template('navigation.html', title='Home')
     else:
         return render_template('login.html', title='login')
-
-@app.route('/heatmap/static/<path:path>')
-def send_js(path):
-    return send_from_directory('heatmap/static', path)
 
 @app.route('/heatmap/login')
 def login():
