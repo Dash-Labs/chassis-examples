@@ -1,4 +1,4 @@
-var map, pointarray, heatmap;
+var map, pointarray, heatmap, pointArray;
 var csv = [];
 var heatmapURL= document.getElementById("api").innerHTML;
 
@@ -23,17 +23,20 @@ function handleCSVFile(url) {
       console.log(data);
       start_time = data['start_time'];
       end_time = data['end_time'];
-      heatmapArray = [];
       $.each(data['result'], function (index, row) {
-          heatmapArray.push({
+          pointArray.push({
                 location: new google.maps.LatLng(row["lat"], row["lon"]),
                 weight: row["weight"]
           });
       });
-      loadHeatmap(heatmapArray);
+      console.log(pointArray.getLength());
       handleFileSelectBetweenDate(start_time, end_time);
     }
   });
+}
+
+function toggleHeatmap() {
+  heatmap.setMap(heatmap.getMap() ? null : map);
 }
 
 function initialize() {
@@ -43,30 +46,39 @@ function initialize() {
     mapTypeId: google.maps.MapTypeId.TERRAIN
   };
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+  loadHeatmap();
 }
 
-function loadHeatmap(heatmapArray) {
+function loadHeatmap() {
+  heatmapInitialArray = [];
+  pointArray = new google.maps.MVCArray(heatmapInitialArray);
   heatmap = new google.maps.visualization.HeatmapLayer({
-    data: heatmapArray,
+    data: pointArray,
     radius: 20,
     opacity: 1,
-    map: map
   });
+  heatmap.setMap(map);
 }
 
 $(document).ready(function(){
   handleFileSelect();
   google.maps.event.addDomListener(window, 'load', initialize);
-  google.maps.event.addDomListenerOnce(window, "drag", function() {
-    var center = map.getCenter();
-    google.maps.event.trigger(map, "resize");
-    map.setCenter(center);
-    heatmap.setMap(map);
-  });
-  google.maps.event.addDomListenerOnce(window, "zoom_changed", function() {
-    var center = map.getCenter();
-    google.maps.event.trigger(map, "resize");
-    map.setCenter(center);
-    heatmap.setMap(map);
-  });
+  // google.maps.event.addDomListenerOnce(window, "drag", function() {
+  //   var center = map.getCenter();
+  //   google.maps.event.trigger(map, "resize");
+  //   map.setCenter(center);
+  //   heatmap.setMap(map);
+  // });
+  // google.maps.event.addDomListenerOnce(window, "zoom_changed", function() {
+  //   var center = map.getCenter();
+  //   google.maps.event.trigger(map, "resize");
+  //   map.setCenter(center);
+  //   heatmap.setMap(map);
+  // });
+  // google.maps.event.addDomListenerOnce(window, "resize", function() {
+  //   var center = map.getCenter();
+  //   google.maps.event.trigger(map, "resize");
+  //   map.setCenter(center);
+  //   heatmap.setMap(map);
+  // });
 });

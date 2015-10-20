@@ -65,6 +65,13 @@ def login():
     login_url = "https://dash.by/api/auth/authorize?" + urllib.urlencode(params)
     return redirect(login_url, code=302)
 
+@app.route('/heatmap/logout')
+def logout():
+    # Clear the session
+    session.clear()
+    # Redirect the user to the main page
+    return redirect(url_for('index'))
+
 @app.route('/heatmap/api/authorize', methods=['GET'])
 def authorize():
     code = request.args.get('code', '')
