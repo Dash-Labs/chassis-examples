@@ -4,11 +4,12 @@
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
   <style>
     html, body, #map-canvas {
-      height: 100%;
-      margin: 0px;
       padding: 0px;
       font-family: 'Raleway', sans-serif;
       z-index:1;
+      margin: 0px;
+      width:100%;
+      height:100%;
     }
   </style>
 </head>
@@ -23,7 +24,6 @@
   <div id="api" style="display: none">{{config['API_HEATMAP_URL']}}</div>
   <div id="map-canvas"> </div>
 
-  <script src="/heatmap/static/papaparse.min.js"></script>
   <script src="/heatmap/static/jquery-2.1.1.min.js"></script>
   <script src="/heatmap/static/heatmap.js"></script>
   <script src="https://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
