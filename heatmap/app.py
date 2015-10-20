@@ -28,6 +28,10 @@ DATE = 'date'
 SPEED = 'speed'
 FUEL_EFFICIENCY = 'fuelEfficiency'
 
+STATE_TIME = "startTime="
+END_TIME = "endTime="
+MILLISECOND_TIME_LENGTH = 13
+
 sess = Session()
 
 @app.errorhandler(400)
@@ -122,7 +126,7 @@ def get_heatmap(date_start, date_end):
 
     if NEXT_URL in trips:
         nextUrl = trips[NEXT_URL]
-        write_next_url_into_json_object(json_object, nextUrl)
+        write_next_time_into_json_object(json_object, nextUrl)
         # add coordinate data into map
         route_map = dict()
         write_coordinate_data_into_map(route_map, trips, token)
@@ -131,11 +135,18 @@ def get_heatmap(date_start, date_end):
 
     return json.dumps(json_object)
 
-def write_next_url_into_json_object(json_object, nextUrl):
-    next_date_start = nextUrl[47:60]
-    next_date_end = nextUrl[-13:]
-    json_object['start_time'] = next_date_start
-    json_object['end_time'] = next_date_end
+# get next time from nextURL in dash trips API and write into JSON object
+def write_next_time_into_json_object(json_object, nextUrl):
+    json_object['start_time'] = get_next_time(nextUrl, STATE_TIME, len(STATE_TIME))
+    json_object['end_time'] = get_next_time(nextUrl, END_TIME, len(END_TIME))
+
+# nextUrl: the next_url from Dash Trips API
+# keyWord: "startTime" or "endTime"
+def get_next_time(nextUrl, keyWord, length):
+    keyWordIndex = nextUrl.rfind(keyWord)
+    # get the time belongs to the keyWord
+    return nextUrl[keyWordIndex + length : keyWordIndex + length + MILLISECOND_TIME_LENGTH]
+
 
 def write_map_into_json_object(json_object, route_map):
     json_array = []
