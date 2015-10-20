@@ -25,7 +25,10 @@ function handleCSVFile(url) {
       end_time = data['end_time'];
       heatmapArray = [];
       $.each(data['result'], function (index, row) {
-          heatmapArray.push(new google.maps.LatLng(row["lat"], row["lon"]));
+          heatmapArray.push({
+                location: new google.maps.LatLng(row["lat"], row["lon"]),
+                weight: row["weight"]
+          });
       });
       loadHeatmap(heatmapArray);
       handleFileSelectBetweenDate(start_time, end_time);

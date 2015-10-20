@@ -103,18 +103,18 @@ def speed_fuel():
 @app.route('/heatmap/api/heatmap')
 def get_current_month_heatmap():
     if TOKEN in session:
-        return get_heatmap_csv(None, None)
+        return get_heatmap(None, None)
     else:
         return redirect(url_for('index'))
 
 @app.route('/heatmap/api/heatmap/<date_start>/<date_end>', methods=['GET'])
 def get_previous_month_heatmap(date_start, date_end):
     if TOKEN in session:
-        return get_heatmap_csv(date_start, date_end)
+        return get_heatmap(date_start, date_end)
     else:
         return redirect(url_for('index'))
 
-def get_heatmap_csv(date_start, date_end):
+def get_heatmap(date_start, date_end):
     token = session[TOKEN]
     trips = get_trips_data(date_start, date_end, token)
 
@@ -122,23 +122,41 @@ def get_heatmap_csv(date_start, date_end):
 
     if NEXT_URL in trips:
         nextUrl = trips[NEXT_URL]
-        next_date_start = nextUrl[47:60]
-        next_date_end = nextUrl[-13:]
-        json_object['start_time'] = next_date_start;
-        json_object['end_time'] = next_date_end;
-        write_coordinate_data_into_array(json_object, trips, token)
+        write_next_url_into_json_object(json_object, nextUrl)
+        # add coordinate data into map
+        route_map = dict()
+        write_coordinate_data_into_map(route_map, trips, token)
+        # add value in map into json
+        write_map_into_json_object(json_object, route_map)
+
     return json.dumps(json_object)
 
-def write_coordinate_data_into_array(json_object, trips, token):
+def write_next_url_into_json_object(json_object, nextUrl):
+    next_date_start = nextUrl[47:60]
+    next_date_end = nextUrl[-13:]
+    json_object['start_time'] = next_date_start
+    json_object['end_time'] = next_date_end
+
+def write_map_into_json_object(json_object, route_map):
     json_array = []
+    for key in route_map:
+        coordinate_object = {}
+        coordinate_list = key.split(',')
+        coordinate_object['lat'] = coordinate_list[0]
+        coordinate_object['lon'] = coordinate_list[1]
+        coordinate_object['weight'] = route_map[key]
+        json_array.append(coordinate_object)
+    json_object['result'] = json_array
+
+def write_coordinate_data_into_map(route_map, trips, token):
     for trip in trips['result']:
         routes = get_json_data_from_dash_api(ROUTE_API + trip['id'], token)
         for route in routes:
-            route_object = {};
-            route_object['lat'] = route[LATITUDE];
-            route_object['lon'] = route[LONGITUDE];
-            json_array.append(route_object)
-    json_object['result'] = json_array;
+            coordinate = str(route[LATITUDE]) + "," + str(route[LONGITUDE])
+            if coordinate in route_map:
+                route_map[coordinate] += 1
+            else:
+                route_map[coordinate] = 1
 
 @app.route('/heatmap/api/speed-fuel')
 def get_current_month_speed_fuel_info():
