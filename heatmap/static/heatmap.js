@@ -42,10 +42,9 @@ function initialize() {
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 }
 
-function loadHeatmap(csv) {
-  var pointArray = new google.maps.MVCArray(csv);
+function loadHeatmap(heatmapArray) {
   heatmap = new google.maps.visualization.HeatmapLayer({
-    data: csv,
+    data: heatmapArray,
     radius: 20,
     opacity: 1,
     map: map
