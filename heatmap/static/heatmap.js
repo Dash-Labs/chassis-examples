@@ -63,22 +63,4 @@ function loadHeatmap() {
 $(document).ready(function(){
   handleFileSelect();
   google.maps.event.addDomListener(window, 'load', initialize);
-  // google.maps.event.addDomListenerOnce(window, "drag", function() {
-  //   var center = map.getCenter();
-  //   google.maps.event.trigger(map, "resize");
-  //   map.setCenter(center);
-  //   heatmap.setMap(map);
-  // });
-  // google.maps.event.addDomListenerOnce(window, "zoom_changed", function() {
-  //   var center = map.getCenter();
-  //   google.maps.event.trigger(map, "resize");
-  //   map.setCenter(center);
-  //   heatmap.setMap(map);
-  // });
-  // google.maps.event.addDomListenerOnce(window, "resize", function() {
-  //   var center = map.getCenter();
-  //   google.maps.event.trigger(map, "resize");
-  //   map.setCenter(center);
-  //   heatmap.setMap(map);
-  // });
 });
