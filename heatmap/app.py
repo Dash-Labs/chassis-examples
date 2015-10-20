@@ -118,29 +118,27 @@ def get_heatmap_csv(date_start, date_end):
     token = session[TOKEN]
     trips = get_trips_data(date_start, date_end, token)
 
+    json_object = {}
+
     if NEXT_URL in trips:
         nextUrl = trips[NEXT_URL]
         next_date_start = nextUrl[47:60]
         next_date_end = nextUrl[-13:]
-        # create heatmap csv file
-        sio = StringIO.StringIO()
-        writer = csv.writer(sio)
-        # set column header
-        writer.writerow(('lat', 'lon'))
-        # store the next URL at the first row (Handle it at front end)
-        writer.writerow((next_date_start, next_date_end))
-        # write longitude and latitude data into csv
-        write_coordinate_data_into_csv(writer, trips, token)
-        output = make_response(sio.getvalue())
-        output.headers["Content-Disposition"] = "attachment; filename=heatmap.csv"
-        output.headers["Content-type"] = "text/csv"
-        return output
+        json_object['start_time'] = next_date_start;
+        json_object['end_time'] = next_date_end;
+        write_coordinate_data_into_array(json_object, trips, token)
+    return json.dumps(json_object)
 
-def write_coordinate_data_into_csv(writer, trips, token):
+def write_coordinate_data_into_array(json_object, trips, token):
+    json_array = []
     for trip in trips['result']:
         routes = get_json_data_from_dash_api(ROUTE_API + trip['id'], token)
         for route in routes:
-            writer.writerow((route[LATITUDE], route[LONGITUDE]))
+            route_object = {};
+            route_object['lat'] = route[LATITUDE];
+            route_object['lon'] = route[LONGITUDE];
+            json_array.append(route_object)
+    json_object['result'] = json_array;
 
 @app.route('/heatmap/api/speed-fuel')
 def get_current_month_speed_fuel_info():

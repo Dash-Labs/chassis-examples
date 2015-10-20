@@ -16,27 +16,18 @@ function handleFileSelectBetweenDate(start_time, end_time) {
 }
 
 function handleCSVFile(url) {
-  Papa.parse(url, {
-    header: true,
-    download: true,
-    dynamicTyping: true,
-    complete: function(results) {
-      csv = [];
-      first_row = true;
-      for(idx in results["data"]) {
-        var row = results["data"][idx];
-        if (first_row) {
-          var start_time = row["lat"];
-          var end_time = row["lon"];
-          first_row = false;
-        } else {
-          csv.push(new google.maps.LatLng(row["lat"], row["lon"]));
-        }
-      }
-      console.log(results);
-                
-      loadHeatmap(csv);
-
+  $.getJSON(url, function(data) {
+    if (jQuery.isEmptyObject(data)) {
+      console.log("get all the trip data");
+    } else {
+      console.log(data);
+      start_time = data['start_time'];
+      end_time = data['end_time'];
+      heatmapArray = [];
+      $.each(data['result'], function (index, row) {
+          heatmapArray.push(new google.maps.LatLng(row["lat"], row["lon"]));
+      });
+      loadHeatmap(heatmapArray);
       handleFileSelectBetweenDate(start_time, end_time);
     }
   });
@@ -54,14 +45,26 @@ function initialize() {
 function loadHeatmap(csv) {
   var pointArray = new google.maps.MVCArray(csv);
   heatmap = new google.maps.visualization.HeatmapLayer({
-    data: pointArray,
+    data: csv,
     radius: 20,
-    opacity: 0.8
+    opacity: 1,
+    map: map
   });
-  heatmap.setMap(map);
 }
 
 $(document).ready(function(){
   handleFileSelect();
   google.maps.event.addDomListener(window, 'load', initialize);
+  google.maps.event.addDomListenerOnce(window, "drag", function() {
+    var center = map.getCenter();
+    google.maps.event.trigger(map, "resize");
+    map.setCenter(center);
+    heatmap.setMap(map);
+  });
+  google.maps.event.addDomListenerOnce(window, "zoom_changed", function() {
+    var center = map.getCenter();
+    google.maps.event.trigger(map, "resize");
+    map.setCenter(center);
+    heatmap.setMap(map);
+  });
 });
