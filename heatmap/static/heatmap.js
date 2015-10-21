@@ -43,7 +43,7 @@ function initialize() {
   var mapOptions = {
     zoom: 5,
     center: new google.maps.LatLng(39.854815, -100.276788),
-    mapTypeId: google.maps.MapTypeId.TERRAIN
+    mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
   loadHeatmap();
@@ -56,6 +56,7 @@ function loadHeatmap() {
     data: pointArray,
     radius: 20,
     opacity: 1,
+    maxIntensity: 80
   });
   heatmap.setMap(map);
 }

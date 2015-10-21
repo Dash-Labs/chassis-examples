@@ -6,11 +6,15 @@
     html, body, #map-canvas {
       padding: 0px;
       font-family: 'Raleway', sans-serif;
-      z-index:1;
       margin: 0px;
       width:100%;
       height:100%;
     }
+
+    #time-select-div {
+      z-index: 0;
+    }
+
   </style>
 </head>
 
@@ -23,6 +27,26 @@
 
   <div id="api" style="display: none">{{config['API_HEATMAP_URL']}}</div>
   <div id="map-canvas"> </div>
+
+  <div id="time-select-div" style="position: absolute; top: 20px; right: 20px; width: 240px; height: calc(100% - 100px);">
+    <form id="time-select" style="padding: 10px; background: white; border: 1px solid #aaa; font: 11pt/18pt Helvetica, Sans-serif;">
+      <h3>Filter trips by Data Range</h3>
+      <table style="width:100%">
+        <tr>
+          <td><p><em>from...</em></p></td>
+          <td><p><input type="date" id="input-date-start" /></p></td>
+        </tr>
+        <tr>
+          <td><p><em>to...</em></p></td> 
+          <td><p><input type="date" id="input-date-end" /></p></td> 
+        </tr>
+      </table>
+      <br>
+      <div style="text-align:center;">
+        <input id = "submit_time_range" type="submit" value="Filter trips by Data Range" />
+      </div>
+    </form>
+  </div>
 
   <script src="/heatmap/static/jquery-2.1.1.min.js"></script>
   <script src="/heatmap/static/heatmap.js"></script>
