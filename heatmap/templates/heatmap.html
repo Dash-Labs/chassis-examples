@@ -28,24 +28,32 @@
   <div id="api" style="display: none">{{config['API_HEATMAP_URL']}}</div>
   <div id="map-canvas"> </div>
 
-  <div id="time-select-div" style="position: absolute; top: 20px; right: 20px; width: 240px; height: calc(100% - 100px);">
-    <form id="time-select" style="padding: 10px; background: white; border: 1px solid #aaa; font: 11pt/18pt Helvetica, Sans-serif;">
+  <div id="time-select-div" style="position: absolute; top: 20px; right: 20px; width: 240px; height: 100px;">
+    <div id="time-select-form" style="padding: 10px; background: white; border: 1px solid #aaa; font: 11pt/18pt Helvetica, Sans-serif;">
       <h3>Filter trips by Data Range</h3>
-      <table style="width:100%">
-        <tr>
-          <td><p><em>from...</em></p></td>
-          <td><p><input type="date" id="input-date-start" /></p></td>
-        </tr>
-        <tr>
-          <td><p><em>to...</em></p></td> 
-          <td><p><input type="date" id="input-date-end" /></p></td> 
-        </tr>
-      </table>
-      <br>
-      <div style="text-align:center;">
-        <input id = "submit_time_range" type="submit" value="Filter trips by Data Range" />
-      </div>
-    </form>
+      <form id="time-select-form">
+        <table style="width:100%">
+          <tr>
+            <td><p><em>from...</em></p></td>
+            <td><p><input type="date" id="input-date-start" /></p></td>
+          </tr>
+          <tr>
+            <td><p><em>to...</em></p></td> 
+            <td><p><input type="date" id="input-date-end" /></p></td> 
+          </tr>
+        </table>
+        <br>
+        <div style="text-align: center;">
+          <input id = "time-select" type="submit" value="Filter trips by Data Range" />
+        </div>
+      </form>
+      <form id="full-trips">
+        <div style="text-align: center;">
+          <input type="submit" value="Back to full trips heatmap" />
+        </div>
+      </form>
+    </div>
+        
   </div>
 
   <script src="/heatmap/static/jquery-2.1.1.min.js"></script>
