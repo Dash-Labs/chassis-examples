@@ -125,6 +125,25 @@ def get_previous_month_heatmap(date_start, date_end):
     else:
         return redirect(url_for('index'))
 
+@app.route('/heatmap/api/heatmap/<date_start>/<date_end>/<selected>', methods=['GET'])
+def get_user_selected_heatmap(date_start, date_end, selected):
+    if TOKEN in session:
+        if selected == "selected":
+            return get_heatmap_selected(date_start, date_end)
+        else:
+            abort(400)
+    else:
+        return redirect(url_for('index'))
+
+def get_heatmap_selected(date_start, date_end):
+    token = session[TOKEN]
+    trips = get_selected_trips_data(date_start, date_end, token)
+
+    json_object = {}
+    write_coordinate_data_into_json(json_object, trips, token)
+
+    return json.dumps(json_object)
+
 def get_heatmap(date_start, date_end):
     token = session[TOKEN]
     trips = get_trips_data(date_start, date_end, token)
@@ -133,17 +152,13 @@ def get_heatmap(date_start, date_end):
 
     if NEXT_URL in trips:
         nextUrl = trips[NEXT_URL]
-        write_next_time_into_json_object(json_object, nextUrl)
-        # add coordinate data into map
-        route_map = dict()
-        write_coordinate_data_into_map(route_map, trips, token)
-        # add value in map into json
-        write_map_into_json_object(json_object, route_map)
+        write_next_time_into_json(json_object, nextUrl)
+        write_coordinate_data_into_json(json_object, trips, token)
 
     return json.dumps(json_object)
 
 # get next time from nextURL in dash trips API and write into JSON object
-def write_next_time_into_json_object(json_object, nextUrl):
+def write_next_time_into_json(json_object, nextUrl):
     json_object['start_time'] = get_next_time(nextUrl, STATE_TIME, len(STATE_TIME))
     json_object['end_time'] = get_next_time(nextUrl, END_TIME, len(END_TIME))
 
@@ -154,6 +169,12 @@ def get_next_time(nextUrl, keyWord, length):
     # get the time belongs to the keyWord
     return nextUrl[keyWordIndex + length : keyWordIndex + length + MILLISECOND_TIME_LENGTH]
 
+def write_coordinate_data_into_json(json_object, trips, token):
+    # add coordinate data into map
+    route_map = dict()
+    write_coordinate_data_into_map(route_map, trips, token)
+    # add value in map into json
+    write_map_into_json_object(json_object, route_map)
 
 def write_map_into_json_object(json_object, route_map):
     json_array = []
@@ -222,6 +243,9 @@ def get_json_data_from_dash_api(api_url, token):
     headers = {'Authorization': 'Bearer ' + token}
     response = requests.get(api_url, headers=headers)
     return response.json()
+
+def get_selected_trips_data(date_start, date_end, token):
+    return get_json_data_from_dash_api(TRIP_API + "?startTime=" + date_start + "&endTime=" + date_end + "&paged=false", token)
 
 def get_trips_data(date_start, date_end, token):
     if date_start is None and date_end is None:
