@@ -10,11 +10,9 @@
       width:100%;
       height:100%;
     }
-
     #time-select-div {
       z-index: 0;
     }
-
   </style>
 </head>
 
@@ -28,10 +26,9 @@
   <div id="api" style="display: none">{{config['API_HEATMAP_URL']}}</div>
   <div id="map-canvas"> </div>
 
-  <div id="time-select-div" style="position: absolute; top: 20px; right: 20px; width: 240px; height: 100px;">
+  <div style="position: absolute; top: 20px; right: 20px; width: 240px; height: 100px;">
     <div id="time-select-form" style="padding: 10px; background: white; border: 1px solid #aaa; font: 11pt/18pt Helvetica, Sans-serif;">
-      <h3>Filter trips by Data Range</h3>
-      <form id="time-select-form">
+      <h3>Select by date range</h3>
         <table style="width:100%">
           <tr>
             <td><p><em>from...</em></p></td>
@@ -44,21 +41,14 @@
         </table>
         <br>
         <div style="text-align: center;">
-          <input id = "time-select" type="submit" value="Filter trips by Data Range" />
+          <button id="time-select-form" onclick="submit()">Submit</button>
+          <button id="full-trips" onclick="reset()">Reset</button>
         </div>
-      </form>
-      <form id="full-trips">
-        <div style="text-align: center;">
-          <input type="submit" value="Back to full trips heatmap" />
-        </div>
-      </form>
     </div>
-        
   </div>
 
   <script src="/heatmap/static/jquery-2.1.1.min.js"></script>
   <script src="/heatmap/static/heatmap.js"></script>
   <script src="https://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
-
   <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=visualization"></script>
 </body>
