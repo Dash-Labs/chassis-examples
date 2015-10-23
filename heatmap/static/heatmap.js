@@ -3,8 +3,6 @@ var csv = [];
 var heatmapURL= document.getElementById("api").innerHTML;
 var isContainDataRange = false;
 // html ID
-var time_select_id = "time-select-form";
-var full_trips = "full-trips";
 var input_date_start = "input-date-start";
 var input_date_end = "input-date-end";
 
@@ -92,6 +90,29 @@ function getParameterByName(name) {
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
+function submit() {
+  var input_start_time = $("#" + input_date_start).val();
+  var input_end_time = $("#" + input_date_end).val();
+  var input_start_time_object = new Date(input_start_time);
+  var input_end_time_object = new Date(input_end_time);
+  if (isNaN(input_start_time_object.getTime()) || isNaN(input_end_time_object.getTime())) {
+    alert("The date field cannot be empty");
+  } else {
+    if (input_start_time_object > input_end_time_object) {
+      alert("start time should smaller than end time");
+    } else {
+      var url = window.location.href.split("?")[0];
+      window.location.href = url +  "?startTime=" + escape(input_start_time) + "&endTime=" + escape(input_end_time);
+    }
+  }
+  return false;
+}
+
+function reset() {
+  window.location.href = window.location.href.split("?")[0];
+  return false;
+}
+
 $(document).ready(function(){
   // get start date and end date from url
   var start_time = getParameterByName("startTime");
@@ -110,29 +131,5 @@ $(document).ready(function(){
     isContainDataRange = true;
     getDataBetweenSelectedRange(new Date(start_time), new Date(end_time));
   }
-
-  // date range submit click listerner
-  $("#" + time_select_id).submit(function() {
-    var input_start_time = $("#" + input_date_start).val();
-    var input_end_time = $("#" + input_date_end).val();
-    var input_start_time_object = new Date(input_start_time);
-    var input_end_time_object = new Date(input_end_time);
-    if (isNaN(input_start_time_object.getTime()) || isNaN(input_end_time_object.getTime())) {
-      alert("The date field cannot be empty");
-    } else {
-      if (input_start_time_object > input_end_time_object) {
-        alert("start time should smaller than end time");
-      } else {
-        var url = window.location.href.split("?")[0];
-        window.location.href = url +  "?startTime=" + escape(input_start_time) + "&endTime=" + escape(input_end_time);
-      }
-    }
-    return false;
-  });
-
-  $("#" + full_trips).submit(function() {
-    window.location.href = window.location.href.split("?")[0];
-    return false;
-  });
 
 });
