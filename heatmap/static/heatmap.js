@@ -1,7 +1,17 @@
-var map, pointarray, heatmap, pointArray;
+var map, heatmap, pointArray;
 var csv = [];
 var heatmapURL= document.getElementById("api").innerHTML;
 var isContainDataRange = false;
+// gradient
+var gradient = [
+'rgba(169, 169, 169, 0)',
+'rgba(80, 80, 80, 1)',
+'rgba(64, 64, 64, 1)',
+'rgba(48, 48, 48, 1)',
+'rgba(32, 32, 32, 1)',
+'rgba(16, 16, 16, 1)',
+'rgba(0, 0, 0, 1)'];
+
 // html ID
 var input_date_start = "input-date-start";
 var input_date_end = "input-date-end";
@@ -78,7 +88,8 @@ function loadHeatmap() {
     data: pointArray,
     radius: 20,
     opacity: 1,
-    maxIntensity: 80
+    maxIntensity: 40,
+    gradient: gradient
   });
   heatmap.setMap(map);
 }
