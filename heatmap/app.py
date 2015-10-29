@@ -29,11 +29,33 @@ DATE = 'date'
 SPEED = 'speed'
 VEHICLES = 'vehicles'
 VEHICLEID = 'vehicleId'
+
+# SPPED default parameters
+PREFERRED_UNITS = 'preferredUnits'
+DISTANCE = 'distance'
+SPEED_CITY_HIGHWAY_DEFAULT = 'speed_city_highway_default'
+MILES = 'Miles'
+SPEED_CITY_HIGHWAY_DEFAULT_MILES = 40
+SPEED_CITY_HIGHWAY_DEFAULT_KILOMETERS = 64
+
+# FUEL_EFFICIENCY default parameters
 FUEL_EFFICIENCY = 'fuelEfficiency'
 CITY_FUEL_EFFICIENCY = 'cityFuelEfficiency'
 HIGHWAY_FUEL_EFFICIENCY = 'highwayFuelEfficiency'
-SPEED_CITY_HIGHWAY = 40
+MILES_PER_US_GALLON = 'MilesPerUSGallon'
+MILES_PER_US_GALLON_CITY_DEFAULT = 21
+MILES_PER_US_GALLON_HIGHWAY_DEFAULT = 27
+MILES_PER_IMPERIAL_GALLON = 'MilesPerImperialGallon'
+MILES_PER_IMPERIAL_GALLON_CITY_DEFAULT = 25
+MILES_PER_IMPERIAL_GALLON_HIGHWAY_DEFAULT = 32
+KILOMETERS_PER_LITER = 'KilometersPerLiter'
+KILOMETERS_PER_LITER_CITY_DEFAULT = 9
+KILOMETERS_PER_LITER_HIGHWAY_DEFAULT = 11
+LITER_PER_100_KILOMETER = 'LiterPer100Kilometer'
+LITER_PER_100_KILOMETER_CITY_DEFAULT = 11
+LITER_PER_100_KILOMETER_HIGHWAY_DEFAULT = 8.7
 
+# NEXT_URL default parameters
 STATE_TIME = "startTime="
 END_TIME = "endTime="
 MILLISECOND_TIME_LENGTH = 13
@@ -244,32 +266,83 @@ def write_fuelEfficiency_coordinate_data_into_json(json_object, trips, token):
 def write_fuelEfficiency_coordinate_data_into_map(route_map, trips, token):
     for trip in trips['result']:
         vehicleId = trip[VEHICLEID]
+        # get fuel efficiency unit
+        fuelEfficiency_unit = session[FUEL_EFFICIENCY]
+        # get fuel efficiency data (from API or Default Value)
         cityFuelEfficiency = session[vehicleId + '-' + CITY_FUEL_EFFICIENCY]
         highwayFuelEfficiency = session[vehicleId + '-' + HIGHWAY_FUEL_EFFICIENCY]
+        # get default ditance unit value
+        distance_unit_value = session[SPEED_CITY_HIGHWAY_DEFAULT]
+        # get route data
         routes = get_json_data_from_dash_api(ROUTE_API + trip['id'], token)
         for route in routes:
             if SPEED in route and FUEL_EFFICIENCY in route:
-                if route[SPEED] > SPEED_CITY_HIGHWAY and route[FUEL_EFFICIENCY] < highwayFuelEfficiency:
-                    write_coordinate_data_into_map(route_map, route)
-                elif route[SPEED] < SPEED_CITY_HIGHWAY and route[FUEL_EFFICIENCY] < cityFuelEfficiency:
-                    write_coordinate_data_into_map(route_map, route)
+                if route[SPEED] > distance_unit_value:
+                   fuelEfficiency = highwayFuelEfficiency
+                else:
+                   fuelEfficiency = cityFuelEfficiency
+                # if the user's preferredUnit.fuelEfficiency is LiterPer100Kilometer,
+                # then this is inverted (smaller values are better fuel efficiency)
+                if fuelEfficiency_unit == LITER_PER_100_KILOMETER:
+                    if route[FUEL_EFFICIENCY] > fuelEfficiency:
+                        write_coordinate_data_into_map(route_map, route)
+                else:
+                    if route[FUEL_EFFICIENCY] < fuelEfficiency:
+                        write_coordinate_data_into_map(route_map, route)
 
 def store_car_info_into_session(token):
     user = get_json_data_from_dash_api(USER_API, token)
+    # set user-defined distance unit defualt value (Miles or Kilometers)
+    set_ditance_unit_value(user[PREFERRED_UNITS][DISTANCE])
+    # get user-defined fuel efficiency unit
+    fuel_efficiency_unit = user[PREFERRED_UNITS][FUEL_EFFICIENCY]
+    # store user-defined fuel efficiency unit in session
+    session[FUEL_EFFICIENCY] = fuel_efficiency_unit
+    # get default fuel efficiency value based on units
+    cityFuelEfficiency = get_city_default_fuel_efficiency_unit_value(fuel_efficiency_unit)
+    highwayFuelEfficiency = get_highway_default_fuel_efficiency_unit_value(fuel_efficiency_unit)
+
     for vehicle in user['vehicles']:
         vehicleId = vehicle['id']
         if CITY_FUEL_EFFICIENCY not in vehicle:
-            session[vehicleId + '-' + CITY_FUEL_EFFICIENCY] = 21
+            session[vehicleId + '-' + CITY_FUEL_EFFICIENCY] = cityFuelEfficiency
         else:
             session[vehicleId + '-' + CITY_FUEL_EFFICIENCY] = vehicle[CITY_FUEL_EFFICIENCY]
         if HIGHWAY_FUEL_EFFICIENCY not in vehicle:
-            session[vehicleId + '-' + HIGHWAY_FUEL_EFFICIENCY] = 27
+            session[vehicleId + '-' + HIGHWAY_FUEL_EFFICIENCY] = highwayFuelEfficiency
         else:
             session[vehicleId + '-' + HIGHWAY_FUEL_EFFICIENCY] = vehicle[HIGHWAY_FUEL_EFFICIENCY]
+
+def set_ditance_unit_value(preferredUnits_distance):
+    if preferredUnits_distance == MILES:
+        session[SPEED_CITY_HIGHWAY_DEFAULT] = SPEED_CITY_HIGHWAY_DEFAULT_MILES
+    else:
+        session[SPEED_CITY_HIGHWAY_DEFAULT] = SPEED_CITY_HIGHWAY_DEFAULT_KILOMETERS
+
+def get_city_default_fuel_efficiency_unit_value(preferredUnits_fuelEfficiency):
+    if preferredUnits_fuelEfficiency == MILES_PER_US_GALLON:
+        return MILES_PER_US_GALLON_CITY_DEFAULT
+    elif preferredUnits_fuelEfficiency == MILES_PER_IMPERIAL_GALLON:
+        return MILES_PER_IMPERIAL_GALLON_CITY_DEFAULT
+    elif preferredUnits_fuelEfficiency == KILOMETERS_PER_LITER:
+        return KILOMETERS_PER_LITER_CITY_DEFAULT
+    else:
+        return LITER_PER_100_KILOMETER_CITY_DEFAULT
+
+def get_highway_default_fuel_efficiency_unit_value(preferredUnits_fuelEfficiency):
+    if preferredUnits_fuelEfficiency == MILES_PER_US_GALLON:
+        return MILES_PER_US_GALLON_HIGHWAY_DEFAULT
+    elif preferredUnits_fuelEfficiency == MILES_PER_IMPERIAL_GALLON:
+        return MILES_PER_IMPERIAL_GALLON_HIGHWAY_DEFAULT
+    elif preferredUnits_fuelEfficiency == KILOMETERS_PER_LITER:
+        return KILOMETERS_PER_LITER_HIGHWAY_DEFAULT
+    else:
+        return LITER_PER_100_KILOMETER_HIGHWAY_DEFAULT
 
 '''
 Function shared by Trip Activity and Fuel-Efficiency Heatmap
 '''
+
 def write_map_into_json_object(json_object, route_map):
     json_array = []
     for key in route_map:
