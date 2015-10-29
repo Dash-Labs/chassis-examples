@@ -1,4 +1,4 @@
-var map, pointarray, heatmap, pointArray;
+var map, heatmap, pointArray;
 var csv = [];
 var heatmapURL= document.getElementById("api").innerHTML;
 var isContainDataRange = false;
