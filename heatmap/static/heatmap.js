@@ -1,16 +1,10 @@
 var map, heatmap, pointArray;
 var csv = [];
-var heatmapURL= document.getElementById("api").innerHTML;
+var heatmapURL= $('#api').text();
+var type = $('#type').text();
 var isContainDataRange = false;
 // gradient
-var gradient = [
-'rgba(169, 169, 169, 0)',
-'rgba(80, 80, 80, 1)',
-'rgba(64, 64, 64, 1)',
-'rgba(48, 48, 48, 1)',
-'rgba(32, 32, 32, 1)',
-'rgba(16, 16, 16, 1)',
-'rgba(0, 0, 0, 1)'];
+var gradient = ['rgba(0, 0, 0, 0)'];
 
 // html ID
 var input_date_start = "input-date-start";
@@ -88,9 +82,11 @@ function loadHeatmap() {
     data: pointArray,
     radius: 20,
     opacity: 1,
-    maxIntensity: 40,
-    gradient: gradient
+    maxIntensity: 80
   });
+  if (type === "pollution-heatmap") {
+    heatmap.set('gradient', gradient);
+  }
   heatmap.setMap(map);
 }
 
@@ -124,7 +120,64 @@ function reset() {
   return false;
 }
 
+function hex(c) {
+  var s = "0123456789abcdef";
+  var i = parseInt(c);
+  if (i === 0 || isNaN (c))
+    return "00";
+  i = Math.round (Math.min (Math.max (0, i), 255));
+  return s.charAt ((i - i % 16) / 16) + s.charAt (i % 16);
+}
+
+/* Convert an RGB triplet to a hex string */
+function convertToHex(rgb) {
+  return hex(rgb[0]) + hex(rgb[1]) + hex(rgb[2]);
+}
+
+/* Remove '#' in color hex string */
+function trim(s) {
+ return (s.charAt(0) == '#') ? s.substring(1, 7) : s;
+}
+
+/* Convert a hex string to an RGB triplet */
+function convertToRGB(hex) {
+  var color = [];
+  color[0] = parseInt ((trim(hex)).substring (0, 2), 16);
+  color[1] = parseInt ((trim(hex)).substring (2, 4), 16);
+  color[2] = parseInt ((trim(hex)).substring (4, 6), 16);
+  var colorRGB = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + 1 + ')';
+  gradient.push(colorRGB);
+  return color;
+}
+
+function generateColor(colorStart, colorEnd, colorCount) {
+  // The beginning of your gradient
+  var start = convertToRGB(colorStart);
+  // The end of your gradient
+  var end = convertToRGB(colorEnd);
+  // The number of colors to compute
+  var len = colorCount;
+  //Alpha blending amount
+  var alpha = 0.0;
+  
+  for (i = 0; i < len; i++) {
+    var color = [];
+    alpha += (1.0/len);
+    color[0] = (start[0] * alpha + (1 - alpha) * end[0]).toFixed(0);
+    color[1] = (start[1] * alpha + (1 - alpha) * end[1]).toFixed(0);
+    color[2] = (start[2] * alpha + (1 - alpha) * end[2]).toFixed(0);
+    var colorRGB = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + 1 + ')';
+    gradient.push(colorRGB);
+  }
+}
+
 $(document).ready(function(){
+  console.log(type);
+  console.log(heatmapURL);
+  if (type === "pollution-heatmap") {
+    generateColor('#808000', '#131313', 10);
+    console.log(gradient);
+  }
   // get start date and end date from url
   var start_time = getParameterByName("startTime");
   var end_time = getParameterByName("endTime");
