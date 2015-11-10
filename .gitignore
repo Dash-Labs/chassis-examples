@@ -14,3 +14,4 @@ logs/
 node_modules/
 app-config.json
 config.py
+*.pyc

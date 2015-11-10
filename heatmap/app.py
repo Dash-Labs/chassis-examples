@@ -388,4 +388,4 @@ def get_trips_data(date_start, date_end, token):
         return get_json_data_from_dash_api(TRIP_API + "?startTime=" + date_start + "&endTime=" + date_end, token)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(threaded=True)

@@ -53,7 +53,6 @@ function addDataIntoMap(url) {
                 weight: row["weight"]
           });
       });
-      console.log(pointArray.getLength());
       if (isContainDataRange === false) {
         getDataBetweenDate(start_time, end_time);
       }
@@ -172,11 +171,8 @@ function generateColor(colorStart, colorEnd, colorCount) {
 }
 
 $(document).ready(function(){
-  console.log(type);
-  console.log(heatmapURL);
   if (type === "pollution-heatmap") {
     generateColor('#808000', '#131313', 10);
-    console.log(gradient);
   }
   // get start date and end date from url
   var start_time = getParameterByName("startTime");
