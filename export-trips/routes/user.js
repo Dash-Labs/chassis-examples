@@ -10,7 +10,7 @@ exports.profile = function(req, res, cb) {
         return res.redirect("/");
     }
     request.get({
-      uri: "https://dash.by/api/chassis/v1/user",
+      uri: "https://7w4xh45731.execute-api.us-east-1.amazonaws.com/prod/user",
       headers: {Authorization: 'Bearer ' + req.session.access_token}
     }, function(error, response, body) {
         if (error || response.statusCode !== 200) {

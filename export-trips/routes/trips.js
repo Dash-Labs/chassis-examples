@@ -77,7 +77,7 @@ function fetchUserVehicles(req, res, cb) {
 */
 function fetchAllTrips(req, vehicles, cb) {
     var repeat = true;
-    var  uri = 'https://dash.by/api/chassis/v1/trips';
+    var  uri = 'https://7w4xh45731.execute-api.us-east-1.amazonaws.com/prod/trips';
     var  trips = [];
     if (!req.session || !req.session.access_token) {
         logger.info("User not logged in..redirecting to the home page.");

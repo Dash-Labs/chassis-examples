@@ -2,8 +2,8 @@
     "CLIENT_ID":"OAUTH_CLIENT_ID",
     "CLIENT_SECRET": "OAUTH_SECRET",
     "SESSION_SECRET": "PASSWORD_FOR_COOKIE",
-    "AUTHORIZE_URL": "https://dash.by/api/auth/authorize",
+    "AUTHORIZE_URL": "https://xb2a5xb6ne.execute-api.us-east-1.amazonaws.com/prod/auth/authorize",
     "REDIRECT_URI": "https://www.YOUR-WEBSITE.com/authorize",
-    "ACCESS_TOKEN_URL": "https://dash.by/api/auth/token",
+    "ACCESS_TOKEN_URL": "https://xb2a5xb6ne.execute-api.us-east-1.amazonaws.com/prod/auth/token",
     "SCOPES": "user trips"
 }

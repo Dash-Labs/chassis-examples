@@ -98,7 +98,7 @@ def login():
               "state": session[STATE],
               "redirect_uri": REDIRECT_URI,
               "scope": SCOPE}
-    login_url = "https://dash.by/api/auth/authorize?" + urllib.urlencode(params)
+    login_url = "https://xb2a5xb6ne.execute-api.us-east-1.amazonaws.com/prod/auth/authorize?" + urllib.urlencode(params)
     return redirect(login_url, code=302)
 
 @app.route('/heatmap/logout')
